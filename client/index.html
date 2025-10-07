@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travio - Banasthali Rides</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin: 5px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .copyright {
+            margin-top: auto;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .welcome-section h1 {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .welcome-section p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .search-bar {
+            display: flex;
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 25px;
+            padding: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-bar input {
+            flex: 1;
+            border: none;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-bar button {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .rides-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 30px;
+        }
+
+        .rides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .ride-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .ride-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            border-color: #8b5cf6;
+        }
+
+        .ride-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: #8b5cf6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .ride-info h3 {
+            color: #1f2937;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .ride-info p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .route {
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .ride-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .seats {
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .price {
+            background: #f59e0b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .ride-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #8b5cf6;
+            border: 2px solid #8b5cf6;
+        }
+
+        .btn-primary {
+            background: #8b5cf6;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .btn-large {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .profile-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: #8b5cf6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            margin-right: 30px;
+        }
+
+        .profile-info h2 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .profile-info p {
+            color: #6b7280;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #a7f3d0;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #fca5a5;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .welcome-section h1 {
+                font-size: 32px;
+            }
+            
+            .rides-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">🚗</div>
+            <div class="logo-text">
+                <h1>Travio</h1>
+                <p>Banasthali Rides</p>
+            </div>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" onclick="showPage('home')">
+                <i>🏠</i> Home
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('profile')">
+                <i>👤</i> Profile
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('create-ride')">
+                <i>➕</i> Create a Ride
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('previous-rides')">
+                <i>🕒</i> Previous Rides
+            </a>
+            <a href="#" class="nav-item" onclick="showPage('about')">
+                <i>ℹ️</i> About
+            </a>
+            <a href="#" class="nav-item" onclick="logout()">
+                <i>🚪</i> Logout
+            </a>
+        </nav>
+        
+        <div class="copyright">
+            © 2025 Travio
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo-icon">🚗</div>
+                <div style="margin-left: 10px;">
+                    <h2>Travio</h2>
+                    <p style="color: #6b7280; font-size: 14px;">Banasthali Rides</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="notification">
+                    🔔
+                    <div class="notification-badge">3</div>
+                </div>
+                <div class="notification">
+                    💬
+                    <div class="notification-badge">5</div>
+                </div>
+                <div class="notification">
+                    👤
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+            <!-- Home Page -->
+            <div id="home-page" class="page">
+                <div class="welcome-section">
+                    <h1>Find travel partners and rides around Banasthali</h1>
+                    <p>Search by destination to discover posted rides. Safe, friendly and built for Banasthali University girls.</p>
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search destination (e.g. Jaipur, Airport, WTP)" id="searchInput">
+                        <button onclick="searchRides()">🔍</button>
+                    </div>
+                </div>
+
+                <div class="rides-section">
+                    <h2 class="section-title">Latest rides</h2>
+                    <div class="rides-grid" id="ridesGrid">
+                        <!-- Rides will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Page -->
+            <div id="profile-page" class="page hidden">
+                <div class="profile-section">
+                    <div class="profile-header">
+                        <div class="profile-avatar">B</div>
+                        <div class="profile-info">
+                            <h2>Bhumi Sharma</h2>
+                            <p>BTBT123104 • abc@banasthali.in</p>
+                        </div>
+                    </div>
+
+                    <form id="profileForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fullName">Full Name</label>
+                                <input type="text" id="fullName" name="name" value="Bhumi Sharma" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="banasthaliId">Banasthali ID</label>
+                                <input type="text" id="banasthaliId" value="BTBT123104" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" value="abc@banasthali.in" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Contact No.</label>
+                                <input type="tel" id="phone" name="phone" value="9999888877" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="guardianPhone">Guardian No.</label>
+                            <input type="tel" id="guardianPhone" value="7777788899">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" placeholder="Enter new password">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Create Ride Page -->
+            <div id="create-ride-page" class="page hidden">
+                <div class="form-section">
+                    <h2 class="form-title">Create a Ride</h2>
+                    <form id="createRideForm">
+                        <div class="form-group">
+                            <label for="pickup">Pickup</label>
+                            <input type="text" id="pickup" name="pickup_location" placeholder="e.g. Jaipur, Gandhi Nagar" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="destination">Destination</label>
+                            <input type="text" id="destination" name="destination" placeholder="e.g. Banasthali Vidyapith" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="rideDate">Date</label>
+                                <input type="date" id="rideDate" name="date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="rideTime">Time</label>
+                                <input type="time" id="rideTime" name="time" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="seats">Seats Available</label>
+                            <input type="number" id="seats" name="seats" value="1" min="1" max="6" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fare">Fare (₹)</label>
+                            <input type="number" id="fare" name="fare" placeholder="Optional">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="notes">Notes</label>
+                            <textarea id="notes" name="notes" rows="3" placeholder="Any preferences or details"></textarea>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="buddyRequest" name="buddy_request">
+                            <label for="buddyRequest">Post as a travel buddy request</label>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="startImmediately" name="start_immediately">
+                            <label for="startImmediately">Start ride immediately</label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-large">Publish</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Previous Rides Page -->
+            <div id="previous-rides-page" class="page hidden">
+                <div class="rides-section">
+                    <h2 class="section-title">Your Previous Rides</h2>
+                    <div class="rides-grid" id="previousRidesGrid">
+                        <!-- Previous rides will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Page -->
+            <div id="about-page" class="page hidden">
+                <div class="form-section">
+                    <h2 class="form-title">About Travio</h2>
+                    <div style="text-align: center; color: #6b7280; line-height: 1.6;">
+                        <p style="font-size: 18px; margin-bottom: 20px;">
+                            Travio is a safe and friendly ride-sharing platform designed specifically for Banasthali University students.
+                        </p>
+                        <p style="margin-bottom: 15px;">
+                            <strong>Features:</strong>
+                        </p>
+                        <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                            <li>Find travel partners and rides</li>
+                            <li>Guardian sharing for safety</li>
+                            <li>Girls-only community</li>
+                            <li>Real-time notifications</li>
+                            <li>Secure messaging</li>
+                        </ul>
+                        <p style="margin-top: 30px; font-size: 14px;">
+                            Built with ❤️ for Banasthali University
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let currentUser = null;
+        let rides = [];
+
+        // Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // Remove active class from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageName + '-page').classList.remove('hidden');
+            
+            // Add active class to clicked nav item
+            event.target.classList.add('active');
+            
+            // Load page-specific data
+            if (pageName === 'home') {
+                loadRides();
+            } else if (pageName === 'previous-rides') {
+                loadPreviousRides();
+            }
+        }
+
+        // Load rides
+        async function loadRides() {
+            try {
+                const response = await fetch(`${API_BASE}/rides`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    rides = data.data;
+                    displayRides(rides, 'ridesGrid');
+                } else {
+                    showError('Failed to load rides: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error loading rides: ' + error.message);
+            }
+        }
+
+        // Display rides
+        function displayRides(ridesData, containerId) {
+            const container = document.getElementById(containerId);
+            
+            if (ridesData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">No rides found. Create some rides to get started!</p>';
+                return;
+            }
+
+            container.innerHTML = ridesData.map(ride => `
+                <div class="ride-card">
+                    <div class="ride-header">
+                        <div class="avatar">${ride.user_name.charAt(0).toUpperCase()}</div>
+                        <div class="ride-info">
+                            <h3>${new Date(ride.timestamp).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${new Date(ride.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</h3>
+                            <p>by ${ride.user_name}</p>
+                        </div>
+                    </div>
+                    <div class="route">${ride.pickup_location || 'Pickup location'} → ${ride.destination || 'Destination'}</div>
+                    <div class="description">${ride.notes || 'No additional details provided.'}</div>
+                    <div class="ride-footer">
+                        <div class="seats">👥 ${ride.seats || 1} seats</div>
+                        <div class="price">₹${ride.fare || 'TBD'}</div>
+                    </div>
+                    <div class="ride-actions">
+                        <button class="btn btn-secondary" onclick="chatWithUser('${ride.user_name}')">Chat</button>
+                        <button class="btn btn-primary" onclick="requestRide('${ride.id}')">Request</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load previous rides
+        async function loadPreviousRides() {
+            // For demo purposes, show all rides as previous rides
+            displayRides(rides, 'previousRidesGrid');
+        }
+
+        // Create ride
+        async function createRide(rideData) {
+            try {
+                const response = await fetch(`${API_BASE}/rides`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(rideData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Ride created successfully!');
+                    document.getElementById('createRideForm').reset();
+                    loadRides();
+                } else {
+                    showError('Failed to create ride: ' + data.message);
+                }
+            } catch (error) {
+                showError('Error creating ride: ' + error.message);
+            }
+        }
+
+        // Search rides
+        function searchRides() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredRides = rides.filter(ride => 
+                (ride.pickup_location && ride.pickup_location.toLowerCase().includes(searchTerm)) ||
+                (ride.destination && ride.destination.toLowerCase().includes(searchTerm))
+            );
+            displayRides(filteredRides, 'ridesGrid');
+        }
+
+        // Chat with user
+        function chatWithUser(userName) {
+            alert(`Chat functionality with ${userName} would be implemented here!`);
+        }
+
+        // Request ride
+        function requestRide(rideId) {
+            alert(`Ride request for ride ${rideId} would be sent here!`);
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                alert('Logout functionality would be implemented here!');
+            }
+        }
+
+        // Utility functions
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            document.querySelector('.content').insertBefore(successDiv, document.querySelector('.page:not(.hidden)'));
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.querySelector('.content').insertBefore(errorDiv, document.querySelector('.page:not(.hidden)'));
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        // Form handlers
+        document.getElementById('createRideForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const rideData = {
+                user_name: 'Bhumi Sharma', // Demo user
+                pickup_location: formData.get('pickup_location'),
+                destination: formData.get('destination'),
+                notes: formData.get('notes'),
+                seats: parseInt(formData.get('seats')),
+                fare: formData.get('fare') ? parseInt(formData.get('fare')) : null
+            };
+            createRide(rideData);
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            showSuccess('Profile updated successfully!');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRides();
+        });
+    </script>
+</body>
+</html>
