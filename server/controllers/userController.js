@@ -3,7 +3,7 @@ const User = require('../models/User');
 // @desc    Get all users
 // @route   GET /api/users
 // @access  Public
-const getAllUsers = async (req, res) => {
+/*const getAllUsers = async (req, res) => {
   try {
     const users = await User.find().sort({ createdAt: -1 });
     res.status(200).json({
@@ -18,7 +18,11 @@ const getAllUsers = async (req, res) => {
       error: error.message
     });
   }
+};*/
+const getAllUsers = async (req, res) => {
+  res.json({ success: true, message: "Route working fine" });
 };
+
 
 // @desc    Get single user
 // @route   GET /api/users/:id

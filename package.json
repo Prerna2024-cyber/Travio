@@ -1,0 +1,13 @@
+{
+  "name": "travio-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run start",
+    "client": "cd client && npm start"
+  },
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

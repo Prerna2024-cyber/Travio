@@ -756,7 +756,7 @@
             container.innerHTML = ridesData.map(ride => `
                 <div class="ride-card">
                     <div class="ride-header">
-                        <div class="avatar">${ride.user_name.charAt(0).toUpperCase()}</div>
+                        <div class="avatar">${(ride.user_name ? ride.user_name.charAt(0).toUpperCase() : '?')}</div>
                         <div class="ride-info">
                             <h3>${new Date(ride.timestamp).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${new Date(ride.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</h3>
                             <p>by ${ride.user_name}</p>

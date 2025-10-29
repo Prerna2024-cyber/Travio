@@ -7,7 +7,9 @@
     "start": "python -m http.server 3000",
     "dev": "python -m http.server 3000"
   },
+  "proxy": "http://localhost:5000",
   "keywords": ["travio", "frontend", "react", "travel", "cab"],
   "author": "Travio Team",
   "license": "MIT"
+  
 }
