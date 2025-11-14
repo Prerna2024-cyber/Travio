@@ -6,6 +6,8 @@ require('dotenv').config();
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 const rideRoutes = require('./routes/rideRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,7 +25,9 @@ app.get('/api', (req, res) => {
     message: "Hello from the Travio server! 👋",
     endpoints: {
       users: "/api/users",
-      rides: "/api/rides"
+      rides: "/api/rides",
+      Chat:"/api/chats",
+      reviews:"/api/reviews"
     }
   });
 });
@@ -38,6 +42,8 @@ const startServer = async () => {
     // Register routes *after* DB connection
     app.use('/api/users', userRoutes);
     app.use('/api/rides', rideRoutes);
+    app.use('/api/chats', chatRoutes);
+    app.use('/api/reviews', reviewRoutes);
 
     // Serve main HTML file
     app.get('/', (req, res) => {
