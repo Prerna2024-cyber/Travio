@@ -1,73 +1,73 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config();
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
-const connectDB = require('./config/database');
-const userRoutes = require('./routes/userRoutes');
-const rideRoutes = require('./routes/rideRoutes');
-const chatRoutes = require('./routes/chatRoutes');
-const reviewRoutes = require('./routes/reviewRoutes');
+const connectDB = require("./config/database");
+const userRoutes = require("./routes/userRoutes");
+const rideRoutes = require("./routes/rideRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const authRoute = require("./routes/authroutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware (basic ones first)
-app.use(cors());
+// ------------ Global Middlewares ------------
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true,
+}));
+
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// Serve static files from client directory
-app.use(express.static(path.join(__dirname, '..', 'client')));
+// Serve frontend static folder
+app.use(express.static(path.join(__dirname, "..", "client")));
 
-// Test route (quick check)
-app.get('/api', (req, res) => {
-  res.json({
-    message: "Hello from the Travio server! 👋",
-    endpoints: {
-      users: "/api/users",
-      rides: "/api/rides",
-      Chat:"/api/chats",
-      reviews:"/api/reviews"
-    }
-  });
-});
-
-// Start server *after* MongoDB connects
+// ------------ Start Server After DB Connect ------------
 const startServer = async () => {
   try {
-    console.log("🔗 Attempting MongoDB connection...");
+    console.log("🔗 Connecting to MongoDB...");
     await connectDB();
-    console.log("✅ MongoDB connection established.");
+    console.log("✅ MongoDB connected.");
 
-    // Register routes *after* DB connection
-    app.use('/api/users', userRoutes);
-    app.use('/api/rides', rideRoutes);
-    app.use('/api/chats', chatRoutes);
-    app.use('/api/reviews', reviewRoutes);
+    // Register routes AFTER DB is connected
+    app.use("/api/auth", authRoute);
+    app.use("/api/users", userRoutes);
+    app.use("/api/rides", rideRoutes);
+    app.use("/api/chats", chatRoutes);
+    app.use("/api/reviews", reviewRoutes);
 
-    // Serve main HTML file
-    app.get('/', (req, res) => {
-      res.sendFile(path.join(__dirname, '..', 'client', 'index.html'));
+    // Main frontend
+    app.get("/", (req, res) => {
+      res.sendFile(path.join(__dirname, "..", "client", "login.html"));
     });
 
     // Global error handler
     app.use((err, req, res, next) => {
-      console.error(err.stack);
-      res.status(500).json({
-        success: false,
-        message: 'Something went wrong!',
-        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+      console.error(err);
+      res.status(500).json({ 
+        success: false, 
+        message: "Internal Server Error" 
       });
     });
 
+    // SINGLE app.listen
     app.listen(PORT, () => {
-      console.log(`🚀 Server is running on port ${PORT}`);
+     console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`🌐 Frontend: http://localhost:${PORT}`);
       console.log(`🌐 API Base URL: http://localhost:${PORT}/api`);
     });
-  } catch (error) {
-    console.error('❌ Failed to start server:', error);
+
+  } catch (err) {
+    console.error("❌ Error starting server:", err);
   }
 };
 
 startServer();
+``

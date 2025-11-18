@@ -1,4 +1,6 @@
 const express = require('express');
+const auth = require("../middleware/authmiddleware");
+
 const router = express.Router();
 const {
   getAllRides,
@@ -9,15 +11,14 @@ const {
   getRidesByUser,
 } = require('../controllers/rideController');
 
+// Public
 router.get('/', getAllRides);
-
-// changed user param to userId, since we now use initiatorId (ObjectId)
-router.get('/user/:userId', getRidesByUser);
-
 router.get('/:id', getRideById);
-router.post('/', createRide);
-router.put('/:id', updateRide);
-router.delete('/:id', deleteRide);
+
+// Protected
+router.get('/user/:userId', auth, getRidesByUser);
+router.post('/', auth, createRide);
+router.put('/:id', auth, updateRide);
+router.delete('/:id', auth, deleteRide);
 
 module.exports = router;
-

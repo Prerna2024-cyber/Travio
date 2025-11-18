@@ -829,10 +829,18 @@
 
         // Logout
         function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                alert('Logout functionality would be implemented here!');
-            }
-        }
+    // Remove the saved JWT token
+    localStorage.removeItem("token");
+
+    // Optional: also hit backend logout to clear cookies (if used)
+    fetch("http://localhost:5000/api/auth/logout", {
+      method: "GET",
+      credentials: "include"
+    });
+
+    alert("You have been logged out!");
+    window.location.href = "/login.html";
+  }
 
         // Utility functions
         function showSuccess(message) {

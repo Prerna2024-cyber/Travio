@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const { createSecretToken } = require("../tokenGeneration/generateToken");
 
 // GET /api/users
 const getAllUsers = async (_req, res) => {
