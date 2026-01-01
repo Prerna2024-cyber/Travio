@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const bcrypt = require('bcryptjs'); //slow compared to  bcrypt  
 const adminSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -20,14 +20,23 @@ const adminSchema = new mongoose.Schema({
     match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit contact number']
   },
   Password: {
-    type: String,
-    required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters long']
-  }
+  type: String,
+  required: true,
+  minlength: 8,
+  select: false
+}
 }, {
   timestamps: true // automatically creates createdAt and updatedAt
 });
 
+
+
+adminSchema.pre('save', async function(next) {
+  if (!this.isModified('Password')) return next();
+
+  this.Password = await bcrypt.hash(this.Password, 12);
+  next();
+});
 // Virtual field to return _id as a string(converting a complex ObjectId object into a string representation.)
 adminSchema.virtual('id').get(function() {
   return this._id.toHexString();

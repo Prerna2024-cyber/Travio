@@ -46,14 +46,20 @@ const createUser = async (req, res) => {
     // ------------------ CREATE TOKEN ------------------
     const token = createSecretToken(user._id);
 
-    res.cookie("token", token, {
-      path: "/",
-      expires: new Date(Date.now() + 86400000),
-      secure: true,
-      httpOnly: true,
-      sameSite: "None",
-    });
+//     res.cookie("token", token, {
+//   httpOnly: true,
+//   secure: false,        // 👈 MUST be false on localhost
+//   sameSite: "Lax",      // 👈 works on localhost
+//   maxAge: 24 * 60 * 60 * 1000
+// });
+const isProd = process.env.NODE_ENV === "production";
 
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? "None" : "Lax",
+  maxAge: 24 * 60 * 60 * 1000
+});
     console.log("Cookie set successfully");
 
     res.status(201).json({

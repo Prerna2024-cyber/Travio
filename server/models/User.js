@@ -73,6 +73,7 @@ const userSchema = new mongoose.Schema(
 );
 
 // Virtual id -> _id as string
+//MongoDB stores _id by default (with underscore). Sometimes you want id without underscore
 userSchema.virtual('id').get(function () {
   return this._id.toHexString();
 });
