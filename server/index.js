@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000;
 // ------------ Global Middlewares ------------
 // CORS Configuration - VERY IMPORTANT
 app.use(cors({
-  origin: "http://127.0.0.1:5500", // Your frontend URL (Live Server port)
+  origin: "http://localhost:5500", // Your frontend URL (Live Server port)
   credentials: true // Allow cookies
 }));
 
@@ -57,6 +57,17 @@ const startServer = async () => {
     app.get("/", (req, res) => {
       res.sendFile(path.join(__dirname, "..", "client", "login.html"));
     });
+    app.use((req, res, next) => {
+  if (!req.path.startsWith("/api")) {
+    res.sendFile(path.join(__dirname, "..", "client", "login.html"));
+  } else {
+    next(); // forward API routes
+  }
+});
+//(/) → explicitly serves login.html.
+
+//* → ensures that any non-API URL (like /home, /profile) also loads login.html. 
+// This is especially useful if you do SPA routing on the frontend.
 
     // Global error handler
     app.use((err, req, res, next) => {

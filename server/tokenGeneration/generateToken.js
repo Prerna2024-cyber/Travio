@@ -6,3 +6,7 @@ module.exports.createSecretToken = (id) => {
     expiresIn: 3 * 24 * 60 * 60,
   });
 };
+
+//header.payload.signature token format  Header - Says "I'm a JWT"
+//Payload - The data (like userId: "123456")
+//Signature - Proves it's not fake

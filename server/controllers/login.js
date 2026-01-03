@@ -16,12 +16,12 @@ const login = async (req, res) => {
     return res.status(404).json({ message: "Invalid credentials" });
   }
   const token = createSecretToken(user._id);
-  const isProd = process.env.NODE_ENV === "production";
+
 
 res.cookie("token", token, {
   httpOnly: true,
-  secure: isProd,// false in development
-  sameSite: isProd ? "None" : "Lax",
+  secure: false,// false in development
+  sameSite:  "Lax",
   maxAge: 24 * 60 * 60 * 1000
 });
 
