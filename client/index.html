@@ -700,6 +700,50 @@
         const API_BASE = 'http://localhost:5000/api';
         let currentUser = null;
         let rides = [];
+        // Fetch logged-in user info and populate profile
+async function fetchCurrentUser() {
+    console.log("🔥 fetchCurrentUser CALLED");
+    try {
+        const response = await fetch("http://localhost:5000/api/auth/me", {
+            method: "GET",
+            credentials: "include" // important for cookie-based auth
+        });
+           console.log("🟡 /auth/me status:", response.status);
+        const data = await response.json();
+           console.log("🟢 /auth/me response:", data);
+        if (data.user) {
+            currentUser = data.user;
+console.log("✅ USER AUTHENTICATED");
+            // Update profile fields
+            document.getElementById('fullName').value = currentUser.name || '';
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('banasthaliId').value = currentUser.banasthaliId || '';
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('guardianPhone').value = currentUser.guardianPhone || '';
+
+            // Update profile avatar initial
+            const initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
+            document.querySelector('.profile-avatar').textContent = initial;
+
+            // Update sidebar or header avatar if you want
+            // e.g., document.querySelector('.header-right .notification:last-child').textContent = initial;
+        } else {
+            console.warn("❌ AUTH FAILED → redirecting");
+            console.warn("No user data found, redirecting to login...");
+            window.location.href = "/login.html";
+        }
+    } catch (err) {
+          console.error("💥 FETCH ERROR:", err);
+        console.error("Error fetching current user:", err);
+        window.location.href = "/login.html"; // redirect if error
+    }
+}
+
+// Call this on page load
+document.addEventListener('DOMContentLoaded', () => {
+    fetchCurrentUser();
+    loadRides();
+});
 
         // Navigation
         function showPage(pageName) {
@@ -730,7 +774,7 @@
         // Load rides
         async function loadRides() {
             try {
-                const response = await fetch(`${API_BASE}/rides`);
+                const response = await fetch(`${API_BASE}/rides`,{  credentials: "include"});
                 const data = await response.json();
                 
                 if (data.success) {
@@ -829,18 +873,26 @@
 
         // Logout
         function logout() {
-    // Remove the saved JWT token
-    localStorage.removeItem("token");
-
-    // Optional: also hit backend logout to clear cookies (if used)
+    // Hit backend to clear the cookie
     fetch("http://localhost:5000/api/auth/logout", {
-      method: "GET",
-      credentials: "include"
+        method: "POST", // usually POST is better for logout
+        credentials: "include" // important to send the cookie
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert("You have been logged out!");
+            window.location.href = "/login.html"; // redirect to login
+        } else {
+            alert("Logout failed: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Logout error:", err);
+        alert("An error occurred while logging out");
     });
+}
 
-    alert("You have been logged out!");
-    window.location.href = "/login.html";
-  }
 
         // Utility functions
         function showSuccess(message) {
@@ -870,7 +922,7 @@
             e.preventDefault();
             const formData = new FormData(e.target);
             const rideData = {
-                user_name: 'Bhumi Sharma', // Demo user
+                user_name: '', // Demo user
                 pickup_location: formData.get('pickup_location'),
                 destination: formData.get('destination'),
                 notes: formData.get('notes'),
@@ -889,6 +941,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadRides();
         });
+        
     </script>
 </body>
 </html>

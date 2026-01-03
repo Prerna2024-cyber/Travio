@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<h1>Admin Dashboard</h1>
+<button onclick="logout()">Logout</button>
+
+<hr>
+
+<h2>Stats</h2>
+<canvas id="rideChart" width="400"></canvas>
+
+<hr>
+
+<h2>All Rides</h2>
+<div id="rides"></div>
+
+<hr>
+
+<h2>Create New Admin</h2>
+<form id="adminForm">
+  <input type="text" placeholder="Name" id="name" required />
+  <input type="email" placeholder="Email" id="email" required />
+  <input type="Password" placeholder="Password" id="Password" required />
+  <button type="submit">Create Admin</button>
+</form>
+
+<p id="adminMsg"></p>
+
+<script>
+async function checkAdmin() {
+  const res = await fetch("/api/admin/admindashboard", {
+      method: "GET",
+      credentials: "include" // send the cookie
+    });
+
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = "/admin/adminlogin.html";
+      return;
+    } 
+  }
+
+async function loadRides() {
+  const res = await fetch("/api/admin/rides", { credentials: "include" });
+  const rides = await res.json();
+
+  document.getElementById("rides").innerHTML = rides.map(r =>
+    `<p>Ride ID: ${r._id} | Status: ${r.status}</p>`
+  ).join("");
+}
+
+async function loadGraph() {
+  const ongoing = await fetch("/api/admin/rides/ongoing", { credentials: "include" }).then(r => r.json());
+  const completed = await fetch("/api/admin/rides/completed", { credentials: "include" }).then(r => r.json());
+
+  new Chart(document.getElementById("rideChart"), {
+    type: 'bar',
+    data: {
+      labels: ['Ongoing', 'Completed'],
+      datasets: [{
+        label: 'Rides',
+        data: [ongoing.length, completed.length]
+      }]
+    }
+  });
+}
+
+document.getElementById("adminForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nameInput = document.getElementById("name");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("Password");
+
+  const res = await fetch("/api/admin/signup", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: nameInput.value,       // ✅ now this is defined
+      email: emailInput.value,
+      Password: passwordInput.value // lowercase 'password'
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("adminMsg").innerText = data.message;
+});
+
+function logout() {
+  fetch("/api/admin/logout", { credentials: "include" });
+  window.location.href = "/admin/adminlogin.html";
+}
+
+checkAdmin();
+loadRides();
+loadGraph();
+</script>
+
+</body>
+</html>
