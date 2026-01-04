@@ -1,7 +1,7 @@
-const express = require('express');
-const auth = require("../middleware/authmiddleware");
-
+const express = require("express");
 const router = express.Router();
+
+const  protect  = require("../middleware/authmiddleware"); 
 const {
   getAllRides,
   getRideById,
@@ -9,16 +9,33 @@ const {
   updateRide,
   deleteRide,
   getRidesByUser,
-} = require('../controllers/rideController');
+} = require("../controllers/rideController");
 
-// Public
-router.get('/', getAllRides);
-router.get('/:id', getRideById);
+/* =====================================
+   STATIC & SPECIFIC ROUTES FIRST
+===================================== */
 
-// Protected
-router.get('/user/:userId', auth, getRidesByUser);
-router.post('/', auth, createRide);
-router.put('/:id', auth, updateRide);
-router.delete('/:id', auth, deleteRide);
+// // CREATE ride
+// router.post("/create", createRide);
+// Apply protect middleware
+router.post("/create", protect, createRide);
+// GET all rides (geo + filters + search)
+router.get("/", getAllRides);
+
+// GET rides by a specific user
+router.get("/user/:userId", getRidesByUser);
+
+/* =====================================
+   DYNAMIC ROUTES LAST (VERY IMPORTANT)
+===================================== */
+
+// GET one ride by ID
+router.get("/:id", getRideById);
+
+// UPDATE ride
+router.put("/:id", updateRide);
+
+// DELETE ride
+router.delete("/:id", deleteRide);
 
 module.exports = router;

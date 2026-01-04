@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 
+/* ========================= REGEX ========================= */
 const phoneRegex = /^[0-9]{10}$/;
 const aadharRegex = /^[0-9]{12}$/;
 const plateRegex = /^[A-Z0-9\- ]{5,15}$/i;
 const licenseRegex = /^[A-Z0-9\-]{5,20}$/i;
 
+/* ========================= LOCATION POINT (TRACKING) ========================= */
 const locationPointSchema = new mongoose.Schema(
   {
     timestamp: { type: Date, required: true },
@@ -14,32 +16,77 @@ const locationPointSchema = new mongoose.Schema(
   { _id: false }
 );
 
-const driverSchema = new mongoose.Schema(
+/* ========================= PICKUP / DESTINATION ========================= */
+const placeSchema = new mongoose.Schema(
   {
-    name: { type: String, trim: true, maxlength: 50 },
-    contactNumber: { type: String, match: [phoneRegex, 'Contact must be 10 digits'] },
-    vehicleNumber: { type: String, trim: true, match: [plateRegex, 'Invalid vehicle number'] },
-    aadhar: { type: String, match: [aadharRegex, 'Aadhar must be 12 digits'] },
-    licence: { type: String, trim: true, match: [licenseRegex, 'Invalid licence number'] },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100,
+    },
+    address: {
+      type: String,
+      trim: true,
+      maxlength: 250,
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true,
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true,
+      },
+    },
   },
   { _id: false }
 );
 
+/* ========================= DRIVER (OPTIONAL) ========================= */
+const driverSchema = new mongoose.Schema(
+  {
+    name: { type: String, trim: true, maxlength: 50 },
+    contactNumber: {
+      type: String,
+      match: [phoneRegex, 'Contact must be 10 digits'],
+    },
+    vehicleNumber: {
+      type: String,
+      trim: true,
+      match: [plateRegex, 'Invalid vehicle number'],
+    },
+    aadhar: {
+      type: String,
+      match: [aadharRegex, 'Aadhar must be 12 digits'],
+    },
+    licence: {
+      type: String,
+      trim: true,
+      match: [licenseRegex, 'Invalid licence number'],
+    },
+  },
+  { _id: false }
+);
+
+/* ========================= RIDE SCHEMA ========================= */
 const rideSchema = new mongoose.Schema(
   {
-    destination: {
-      type: String,
-      required: [true, 'Destination is required'],
-      trim: true,
-      maxlength: [200, 'Destination cannot be more than 200 characters'],
+    pickup: {
+      type: placeSchema,
+      required: [true, 'Pickup location is required'],
     },
-
+    destination: {
+      type: placeSchema,
+      required: [true, 'Destination location is required'],
+    },
     rideType: {
       type: String,
       enum: ['cab', 'travelBuddy'],
       required: [true, 'Ride type is required'],
     },
-
     departureTime: {
       type: Date,
       required: [true, 'Departure time is required'],
@@ -48,35 +95,57 @@ const rideSchema = new mongoose.Schema(
         message: 'Departure time must be in the future',
       },
     },
-
+    description: {
+      type: String,
+      trim: true,
+      minlength: [300, 'Description must be at least 300 characters'],
+      maxlength: [400, 'Description cannot exceed 400 characters'],
+      // Conditional requirement based on rideType (handled in application logic)
+    },
     status: {
       type: String,
       enum: ['scheduled', 'ongoing', 'completed', 'cancelled'],
       default: 'scheduled',
     },
-
     initiatorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: [true, 'Initiator (User) is required'],
+      required: true,
     },
-
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
       },
     ],
-
-    locationHistory: [locationPointSchema], // optional
-
-    // OPTIONAL driver details – can be added later
-    driver: driverSchema,
+    locationHistory: [locationPointSchema],
+    driver: {
+      type: driverSchema,
+      validate: {
+          validator: function (value) {
+            if (this.rideType === 'cab') {
+                  return value != null;
+               }
+                return true; // travelBuddy doesn't need driver
+             },
+          message: 'Driver details are required for cab rides',
+          },
+           }, // optional
   },
   { timestamps: true }
 );
 
-// Virtual id -> _id as string
+/* ========================= INDEXES (VERY IMPORTANT) ========================= */
+// rideSchema.index({ 'pickup.location': '2dsphere' });
+// rideSchema.index({ 'destination.location': '2dsphere' });
+// rideSchema.index({ 'pickup.name': 'text', 'destination.name': 'text' });
+rideSchema.index({ "pickup.location": "2dsphere" });
+rideSchema.index({ rideType: 1 });
+rideSchema.index({ initiatorId: 1 });
+rideSchema.index({ "pickup.name": 1 });
+rideSchema.index({ "destination.name": 1 });
+
+/* ========================= VIRTUAL ID ========================= */
 rideSchema.virtual('id').get(function () {
   return this._id.toHexString();
 });

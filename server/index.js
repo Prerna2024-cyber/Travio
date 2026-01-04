@@ -34,9 +34,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser()); // ADD THIS - Parses cookies from requests
 
-// Serve frontend static folder
-// Serve HTML, CSS, JS files from  folder
-app.use(express.static(path.join(__dirname, "..", "client")));
+
 
 // ------------ Start Server After DB Connect ------------
 const startServer = async () => {
@@ -46,13 +44,16 @@ const startServer = async () => {
     console.log("✅ MongoDB connected.");
 
     // Register routes AFTER DB is connected
+     app.use("/api/rides", rideRoutes);
     app.use("/api/auth", authRoute);
     app.use("/api/users", userRoutes);
-    app.use("/api/rides", rideRoutes);
+   
     app.use("/api/chats", chatRoutes);
     app.use("/api/reviews", reviewRoutes);
     app.use('/api/admin', adminRoutes);
-
+// Serve frontend static folder
+// Serve HTML, CSS, JS files from  folder
+app.use(express.static(path.join(__dirname, "..", "client")));
     // Main frontend
     app.get("/", (req, res) => {
       res.sendFile(path.join(__dirname, "..", "client", "login.html"));

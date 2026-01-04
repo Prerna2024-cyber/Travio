@@ -21,7 +21,7 @@ router.post("/logout", (req, res) => {
 
 // Get logged-in user info
 router.get("/me", authmiddleware, async (req, res) => {
-   console.log("🔥 /me route HIT");
+  
   try {
     const user = await User.findById(req.user.id).select("-hashedPassword");
     if (!user) {
