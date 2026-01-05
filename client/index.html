@@ -166,6 +166,7 @@
         }
 
         .search-bar {
+             position: relative;
             display: flex;
             max-width: 500px;
             margin: 0 auto;
@@ -468,6 +469,65 @@
                 grid-template-columns: 1fr;
             }
         }
+        .suggestions {
+            list-style: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 0;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1000;
+            }
+
+            .suggestions li {
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            }
+            .suggestion-item {
+                padding: 10px;
+                cursor: pointer;
+                font-size: 14px;
+            }
+            .suggestions li:hover {
+            background: #f1f1f1;
+            }
+            
+
+.autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+
+
+            
+            .autocomplete-list {
+                 top: 100%;
+  left: 0;
+                position: absolute;
+                background: white;
+                border: 1px solid #ddd;
+                width: 100%;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 1000;
+                border-radius: 8px;
+                }
+
+                .autocomplete-item {
+                padding: 10px;
+                cursor: pointer;
+                }
+
+                .autocomplete-item:hover {
+                background: #f3f4f6;
+                }
+
+
     </style>
 </head>
 <body>
@@ -480,27 +540,33 @@
                 <p>Banasthali Rides</p>
             </div>
         </div>
-        
+            
         <nav class="nav-menu">
-            <a href="#" class="nav-item active" onclick="showPage('home')">
+            <a href="#" class="nav-item active" onclick="showPage( 'home')">
                 <i>🏠</i> Home
             </a>
+
             <a href="#" class="nav-item" onclick="showPage('profile')">
                 <i>👤</i> Profile
             </a>
+
             <a href="#" class="nav-item" onclick="showPage('create-ride')">
                 <i>➕</i> Create a Ride
             </a>
+
             <a href="#" class="nav-item" onclick="showPage('previous-rides')">
                 <i>🕒</i> Previous Rides
             </a>
+
             <a href="#" class="nav-item" onclick="showPage('about')">
                 <i>ℹ️</i> About
             </a>
+
             <a href="#" class="nav-item" onclick="logout()">
                 <i>🚪</i> Logout
             </a>
         </nav>
+
         
         <div class="copyright">
             © 2025 Travio
@@ -541,9 +607,15 @@
                     <h1>Find travel partners and rides around Banasthali</h1>
                     <p>Search by destination to discover posted rides. Safe, friendly and built for Banasthali University girls.</p>
                     <div class="search-bar">
-                        <input type="text" placeholder="Search destination (e.g. Jaipur, Airport, WTP)" id="searchInput">
-                        <button onclick="searchRides()">🔍</button>
-                    </div>
+    <div class="autocomplete-wrapper">
+        <input type="text" id="pickupSearch" placeholder="Pickup location">
+    </div>
+    <div class="autocomplete-wrapper">
+        <input type="text" id="destinationSearch" placeholder="Destination">
+    </div>
+    <input type="date" id="dateSearch">
+    <button onclick="searchRides()">🔍</button>
+</div>
                 </div>
 
                 <div class="rides-section">
@@ -610,12 +682,20 @@
                     <form id="createRideForm">
                         <div class="form-group">
                             <label for="pickup">Pickup</label>
-                            <input type="text" id="pickup" name="pickup_location" placeholder="e.g. Jaipur, Gandhi Nagar" required>
+                            <div class="form-group autocomplete-wrapper">
+                                <input id="pickup" type="text" placeholder="Pickup location" required>
+                                </div>
+                            
+
                         </div>
 
                         <div class="form-group">
                             <label for="destination">Destination</label>
-                            <input type="text" id="destination" name="destination" placeholder="e.g. Banasthali Vidyapith" required>
+                            <div class="autocomplete-wrapper">
+        <input type="text" id="destination" name="destination" placeholder="e.g. Banasthali Vidyapith" required>
+    </div>
+                            
+
                         </div>
 
                         <div class="form-row">
@@ -696,252 +776,6 @@
         </div>
     </div>
 
-    <script>
-        const API_BASE = 'http://localhost:5000/api';
-        let currentUser = null;
-        let rides = [];
-        // Fetch logged-in user info and populate profile
-async function fetchCurrentUser() {
-    console.log("🔥 fetchCurrentUser CALLED");
-    try {
-        const response = await fetch("http://localhost:5000/api/auth/me", {
-            method: "GET",
-            credentials: "include" // important for cookie-based auth
-        });
-           console.log("🟡 /auth/me status:", response.status);
-        const data = await response.json();
-           console.log("🟢 /auth/me response:", data);
-        if (data.user) {
-            currentUser = data.user;
-console.log("✅ USER AUTHENTICATED");
-            // Update profile fields
-            document.getElementById('fullName').value = currentUser.name || '';
-            document.getElementById('email').value = currentUser.email || '';
-            document.getElementById('banasthaliId').value = currentUser.banasthaliId || '';
-            document.getElementById('phone').value = currentUser.phone || '';
-            document.getElementById('guardianPhone').value = currentUser.guardianPhone || '';
-
-            // Update profile avatar initial
-            const initial = currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U';
-            document.querySelector('.profile-avatar').textContent = initial;
-
-            // Update sidebar or header avatar if you want
-            // e.g., document.querySelector('.header-right .notification:last-child').textContent = initial;
-        } else {
-            console.warn("❌ AUTH FAILED → redirecting");
-            console.warn("No user data found, redirecting to login...");
-            window.location.href = "/login.html";
-        }
-    } catch (err) {
-          console.error("💥 FETCH ERROR:", err);
-        console.error("Error fetching current user:", err);
-        window.location.href = "/login.html"; // redirect if error
-    }
-}
-
-// Call this on page load
-document.addEventListener('DOMContentLoaded', () => {
-    fetchCurrentUser();
-    loadRides();
-});
-
-        // Navigation
-        function showPage(pageName) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.add('hidden');
-            });
-            
-            // Remove active class from all nav items
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Show selected page
-            document.getElementById(pageName + '-page').classList.remove('hidden');
-            
-            // Add active class to clicked nav item
-            event.target.classList.add('active');
-            
-            // Load page-specific data
-            if (pageName === 'home') {
-                loadRides();
-            } else if (pageName === 'previous-rides') {
-                loadPreviousRides();
-            }
-        }
-
-        // Load rides
-        async function loadRides() {
-            try {
-                const response = await fetch(`${API_BASE}/rides`,{  credentials: "include"});
-                const data = await response.json();
-                
-                if (data.success) {
-                    rides = data.data;
-                    displayRides(rides, 'ridesGrid');
-                } else {
-                    showError('Failed to load rides: ' + data.message);
-                }
-            } catch (error) {
-                showError('Error loading rides: ' + error.message);
-            }
-        }
-
-        // Display rides
-        function displayRides(ridesData, containerId) {
-            const container = document.getElementById(containerId);
-            
-            if (ridesData.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #6b7280; padding: 40px;">No rides found. Create some rides to get started!</p>';
-                return;
-            }
-
-            container.innerHTML = ridesData.map(ride => `
-                <div class="ride-card">
-                    <div class="ride-header">
-                        <div class="avatar">${(ride.user_name ? ride.user_name.charAt(0).toUpperCase() : '?')}</div>
-                        <div class="ride-info">
-                            <h3>${new Date(ride.timestamp).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • ${new Date(ride.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</h3>
-                            <p>by ${ride.user_name}</p>
-                        </div>
-                    </div>
-                    <div class="route">${ride.pickup_location || 'Pickup location'} → ${ride.destination || 'Destination'}</div>
-                    <div class="description">${ride.notes || 'No additional details provided.'}</div>
-                    <div class="ride-footer">
-                        <div class="seats">👥 ${ride.seats || 1} seats</div>
-                        <div class="price">₹${ride.fare || 'TBD'}</div>
-                    </div>
-                    <div class="ride-actions">
-                        <button class="btn btn-secondary" onclick="chatWithUser('${ride.user_name}')">Chat</button>
-                        <button class="btn btn-primary" onclick="requestRide('${ride.id}')">Request</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load previous rides
-        async function loadPreviousRides() {
-            // For demo purposes, show all rides as previous rides
-            displayRides(rides, 'previousRidesGrid');
-        }
-
-        // Create ride
-        async function createRide(rideData) {
-            try {
-                const response = await fetch(`${API_BASE}/rides`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(rideData)
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showSuccess('Ride created successfully!');
-                    document.getElementById('createRideForm').reset();
-                    loadRides();
-                } else {
-                    showError('Failed to create ride: ' + data.message);
-                }
-            } catch (error) {
-                showError('Error creating ride: ' + error.message);
-            }
-        }
-
-        // Search rides
-        function searchRides() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filteredRides = rides.filter(ride => 
-                (ride.pickup_location && ride.pickup_location.toLowerCase().includes(searchTerm)) ||
-                (ride.destination && ride.destination.toLowerCase().includes(searchTerm))
-            );
-            displayRides(filteredRides, 'ridesGrid');
-        }
-
-        // Chat with user
-        function chatWithUser(userName) {
-            alert(`Chat functionality with ${userName} would be implemented here!`);
-        }
-
-        // Request ride
-        function requestRide(rideId) {
-            alert(`Ride request for ride ${rideId} would be sent here!`);
-        }
-
-        // Logout
-        function logout() {
-    // Hit backend to clear the cookie
-    fetch("http://localhost:5000/api/auth/logout", {
-        method: "POST", // usually POST is better for logout
-        credentials: "include" // important to send the cookie
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert("You have been logged out!");
-            window.location.href = "/login.html"; // redirect to login
-        } else {
-            alert("Logout failed: " + data.message);
-        }
-    })
-    .catch(err => {
-        console.error("Logout error:", err);
-        alert("An error occurred while logging out");
-    });
-}
-
-
-        // Utility functions
-        function showSuccess(message) {
-            const successDiv = document.createElement('div');
-            successDiv.className = 'success-message';
-            successDiv.textContent = message;
-            document.querySelector('.content').insertBefore(successDiv, document.querySelector('.page:not(.hidden)'));
-            
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-        }
-
-        function showError(message) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.textContent = message;
-            document.querySelector('.content').insertBefore(errorDiv, document.querySelector('.page:not(.hidden)'));
-            
-            setTimeout(() => {
-                errorDiv.remove();
-            }, 5000);
-        }
-
-        // Form handlers
-        document.getElementById('createRideForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const rideData = {
-                user_name: '', // Demo user
-                pickup_location: formData.get('pickup_location'),
-                destination: formData.get('destination'),
-                notes: formData.get('notes'),
-                seats: parseInt(formData.get('seats')),
-                fare: formData.get('fare') ? parseInt(formData.get('fare')) : null
-            };
-            createRide(rideData);
-        });
-
-        document.getElementById('profileForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            showSuccess('Profile updated successfully!');
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadRides();
-        });
-        
-    </script>
+    <script src="index.js"></script>
 </body>
 </html>
