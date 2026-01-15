@@ -5,6 +5,7 @@ let currentUser = null;
 let rides = [];
 let selectedPickup = null;
 let selectedDestination = null;
+let notificationCheckInterval = null;
 
 /* ==============================
    DETECT CURRENT PAGE
@@ -390,10 +391,28 @@ function openChat(rideId) {
   // Implement chat functionality
 }
 
-function requestRide(rideId) {
-  if (confirm("Do you want to request this ride?")) {
-    // Implement request ride functionality
-    alert(`Ride requested: ${rideId}`);
+async function requestRide(rideId) {
+  try {
+    const res = await fetch(`${API_BASE}/ride-requests/${rideId}/request`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        message: "I would like to join this ride"
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    showSuccess("Request sent successfully!");
+    // Reload rides to update button state
+    loadRides();
+  } catch (err) {
+    showError(err.message);
   }
 }
 
@@ -405,6 +424,206 @@ function logout() {
     method: "POST",
     credentials: "include",
   }).then(() => window.location.href = "/login.html");
+}
+
+/* ==============================
+   NOTIFICATIONS
+================================ */
+async function loadNotifications() {
+  try {
+    const res = await fetch(`${API_BASE}/notifications`, {
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      console.error("Error loading notifications:", data.message);
+      return;
+    }
+
+    displayNotifications(data.data, data.unreadCount);
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+  }
+}
+
+function displayNotifications(notifications, unreadCount) {
+  // Update notification badge
+  const notificationIcon = document.querySelector('.notification img[src*="notification"]');
+  if (notificationIcon) {
+    const parent = notificationIcon.closest('.notification');
+    
+    // Remove existing badge if any
+    const existingBadge = parent.querySelector('.notification-badge');
+    if (existingBadge) existingBadge.remove();
+    
+    // Add badge if there are unread notifications
+    if (unreadCount > 0) {
+      const badge = document.createElement('span');
+      badge.className = 'notification-badge';
+      badge.textContent = unreadCount;
+      parent.appendChild(badge);
+    }
+  }
+
+  // Create or update notification popup
+  let notificationPanel = document.getElementById('notificationPanel');
+  if (!notificationPanel) {
+    notificationPanel = document.createElement('div');
+    notificationPanel.id = 'notificationPanel';
+    notificationPanel.className = 'notification-panel';
+    document.body.appendChild(notificationPanel);
+
+    // Add click event to notification icon to toggle panel
+    const notificationIcon = document.querySelector('.notification img[src*="notification"]');
+    if (notificationIcon) {
+      notificationIcon.closest('.notification').addEventListener('click', toggleNotificationPanel);
+    }
+  }
+
+  // Populate notification list
+  const notificationList = notifications.map(notif => {
+    const actionButtons = getActionButtonsForNotification(notif);
+    
+    return `
+      <div class="notification-item ${notif.status === 'unread' ? 'unread' : ''}">
+        <div class="notif-header">
+          <h4>${notif.senderUserId?.name || 'User'}</h4>
+          <span class="notif-time">${new Date(notif.createdAt).toLocaleDateString()}</span>
+        </div>
+        <p class="notif-message">${notif.message}</p>
+        <div class="notif-type" style="font-size: 11px; color: #999; margin: 5px 0;">
+          ${notif.type === 'join_request' ? '📋 Join Request' : 
+            notif.type === 'request_accepted' ? '✅ Request Accepted' : 
+            '❌ Request Rejected'}
+        </div>
+        ${actionButtons}
+      </div>
+    `;
+  }).join('');
+
+  notificationPanel.innerHTML = `
+    <div class="notification-header">
+      <h3>Notifications</h3>
+      <button onclick="closeNotificationPanel()" style="background: none; border: none; font-size: 20px; cursor: pointer;">×</button>
+    </div>
+    <div class="notification-list">
+      ${notificationList || '<p style="text-align: center; color: #999; padding: 20px;">No notifications</p>'}
+    </div>
+  `;
+}
+
+function getActionButtonsForNotification(notif) {
+  // Only show action buttons for join_request type
+  if (notif.type !== 'join_request') {
+    return '';
+  }
+
+  // Get the request ID from the notification (you may need to adjust this based on your data structure)
+  return `
+    <div class="notif-actions">
+      <button class="btn btn-small btn-accept" onclick="acceptRequest('${notif.rideId}', '${notif._id}', '${notif.senderUserId?._id}')">
+        Accept
+      </button>
+      <button class="btn btn-small btn-reject" onclick="rejectRequest('${notif.rideId}', '${notif._id}', '${notif.senderUserId?._id}')">
+        Reject
+      </button>
+    </div>
+  `;
+}
+
+function toggleNotificationPanel() {
+  const panel = document.getElementById('notificationPanel');
+  if (panel) {
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    if (panel.style.display === 'block') {
+      loadNotifications();
+    }
+  }
+}
+
+function closeNotificationPanel() {
+  const panel = document.getElementById('notificationPanel');
+  if (panel) {
+    panel.style.display = 'none';
+  }
+}
+
+async function acceptRequest(rideId, notificationId, userId) {
+  try {
+    // First, get the request ID by fetching ride requests
+    const requestRes = await fetch(`${API_BASE}/ride-requests/${rideId}/requests`, {
+      credentials: "include"
+    });
+
+    const requestData = await requestRes.json();
+    
+    // Find the request from the sender
+    const request = requestData.data.find(req => req.userId._id === userId);
+    
+    if (!request) {
+      showError("Request not found");
+      return;
+    }
+
+    // Accept the request
+    const res = await fetch(`${API_BASE}/ride-requests/${rideId}/requests/${request._id}/accept`, {
+      method: "PUT",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    showSuccess("Request accepted!");
+    
+    // Reload notifications
+    loadNotifications();
+  } catch (err) {
+    showError(err.message);
+  }
+}
+
+async function rejectRequest(rideId, notificationId, userId) {
+  try {
+    // First, get the request ID by fetching ride requests
+    const requestRes = await fetch(`${API_BASE}/ride-requests/${rideId}/requests`, {
+      credentials: "include"
+    });
+
+    const requestData = await requestRes.json();
+    
+    // Find the request from the sender
+    const request = requestData.data.find(req => req.userId._id === userId);
+    
+    if (!request) {
+      showError("Request not found");
+      return;
+    }
+
+    // Reject the request
+    const res = await fetch(`${API_BASE}/ride-requests/${rideId}/requests/${request._id}/reject`, {
+      method: "PUT",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.message);
+    }
+
+    showSuccess("Request rejected!");
+    
+    // Reload notifications
+    loadNotifications();
+  } catch (err) {
+    showError(err.message);
+  }
 }
 
 /* ==============================
@@ -535,6 +754,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   // Fetch current user first
   await fetchCurrentUser();
+  
+  // Load notifications initially
+  loadNotifications();
+  
+  // Check for new notifications every 30 seconds
+  notificationCheckInterval = setInterval(loadNotifications, 30000);
   
   // Initialize based on current page
   const currentPage = getCurrentPage();

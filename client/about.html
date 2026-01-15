@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Travio | Banasthali Vidyapith</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+</head>
+<body>
+
+    <div class="main-content">
+        <header class="header">
+    <div class="header-left">
+        <img src="images/logo.png" alt="Travio Logo" class="header-logo-img">
+        <div class="logo-info">
+            <h2>Travio</h2>
+            <p>Travel Buddy</p>
+        </div>
+    </div>
+
+    <nav class="top-nav">
+        <a href="index.html" class="nav-link" onclick="showPage('home')">Home</a>
+
+        <a href="create_a_ride.html" class="nav-link" onclick="showPage('create-ride')">Create a Ride</a>
+        <a href="previous_ride.html" class="nav-link" onclick="showPage('previous-rides')">Previous Rides</a>
+        <a href="about.html" class="nav-link" onclick="showPage('about')">About</a>
+        <a href="login.html" class="nav-link logout" onclick="logout()">Logout</a>
+    </nav>
+
+    <div class="header-right">
+        <div class="notification">
+            <img src="images/notification.gif" alt="Notifications" class="header-icon">
+            
+        </div>
+        
+        <div class="notification">
+            <img src="images/chat-bot.gif" alt="Chat" class="header-icon chat-gif">
+            
+        </div>
+        
+        <div class="notification">
+           <a href="profile.html">
+           <img src="images/profile.gif" alt="User" class="header-avatar">
+          </a>
+        </div>
+    </div>
+</header>
+
+        <div class="main-container animate-profile">
+            <h1 class="page-title">Our Story</h1>
+            <p class="page-subtitle">Breaking the walls between departments at Banasthali Vidyapith.</p>
+
+            <div class="form-card">
+                <section class="about-content">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-graduation-cap icon"></i> The Problem</label>
+                        <p style="color: #5d4037; line-height: 1.6;">
+                            In a campus as big as ours, we are often stuck in departmental silos. Whether it's a semester break or a sudden emergency, finding a cab partner usually means spamming your course WhatsApp group and hoping for a miracle. 
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-route icon"></i> The Travio Solution</label>
+                        <p style="color: #5d4037; line-height: 1.6;">
+                            Travio is a centralized hub for all Banasthalians. A B.Tech student can now find a Law or MBA student heading to the airport or Newai station. No more scrolling through 100+ "Anyone going to Delhi?" messages. Just search, connect, and travel safely.
+                        </p>
+                    </div>
+
+                    <div class="section-divider"></div>
+                    <h2 class="section-title"><i class="fa-solid fa-shield-heart icon"></i> Why Use Travio?</h2>
+
+                    <div class="checkbox-group">
+                        <div class="checkbox-label">
+                            <i class="fa-solid fa-users-rectangle" style="color: #ff8c42;"></i>
+                            <span><b>Cross-Campus Reach:</b> Connect with girls from every hostel and department.</span>
+                        </div>
+                        <div class="checkbox-label">
+                            <i class="fa-solid fa-magnifying-glass-location" style="color: #ff8c42;"></i>
+                            <span><b>Smart Filtering:</b> Search by date and destination specifically for break dates.</span>
+                        </div>
+                        <div class="checkbox-label">
+                            <i class="fa-solid fa-hand-holding-dollar" style="color: #ff8c42;"></i>
+                            <span><b>Cost Efficient:</b> Share cab fares and save money for your next treat!</span>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button class="submit-btn" onclick="window.location.href='index.html'">
+                            <span>Ready to Find a Buddy?</span>
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <footer style="text-align: center; margin-top: 3rem; color: #8b4513; opacity: 0.7; font-size: 0.9rem;">
+                <p>&copy; 2026 Travio | Dedicated to the Banasthali Community</p>
+            </footer>
+        </div>
+    </div>
+
+</body>
+</html>
